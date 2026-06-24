@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRAILBLAZER PRO · 徒步装备实验室</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #0a0e17;
+    --bg-secondary: #111827;
+    --bg-card: #161e2b;
+    --accent: #00e5ff;
+    --accent2: #00c8ff;
+    --accent3: #7c3aed;
+    --gold: #f0b90b;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --border: rgba(0, 229, 255, 0.15);
+    --glow: 0 0 20px rgba(0, 229, 255, 0.25);
+    --glow-strong: 0 0 40px rgba(0, 229, 255, 0.4);
+    --radius: 12px;
+    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body {
+    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== Grid Background ===== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== Glow Orbs ===== */
+  .glow-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.3;
+  }
+  .glow-orb--1 { width: 500px; height: 500px; background: var(--accent); top: -150px; left: -100px; }
+  .glow-orb--2 { width: 400px; height: 400px; background: var(--accent3); bottom: -100px; right: -100px; opacity: 0.2; }
+
+  /* ===== Layout ===== */
+  .site-wrapper { position: relative; z-index: 1; }
+
+  /* ===== Navigation ===== */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(16px) saturate(140%);
+    background: rgba(10,14,23,0.85);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav__inner {
+    max-width: 1280px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+  }
+  .nav__logo {
+    font-size: 1.35rem; font-weight: 800; letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .nav__tagline { font-size: 0.78rem; color: var(--text-secondary); letter-spacing: 4px; text-transform: uppercase; }
+
+  /* ===== Hero ===== */
+  .hero {
+    max-width: 1280px; margin: 0 auto; padding: 80px 24px 60px;
+    text-align: center;
+  }
+  .hero__badge {
+    display: inline-block; padding: 6px 20px; border-radius: 100px;
+    font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase;
+    border: 1px solid var(--accent); color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 900; line-height: 1.15;
+    background: linear-gradient(135deg, #e2e8f0 0%, #00e5ff 50%, #7c3aed 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    font-size: 1.1rem; color: var(--text-secondary); max-width: 600px;
+    margin: 0 auto 32px; line-height: 1.7;
+  }
+  .hero__stats {
+    display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+  }
+  .hero__stat { text-align: center; }
+  .hero__stat-value {
+    font-size: 2rem; font-weight: 800; color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .hero__stat-label { font-size: 0.8rem; color: var(--text-secondary); letter-spacing: 2px; text-transform: uppercase; }
+
+  /* ===== Section Title ===== */
+  .section-title {
+    text-align: center; margin-bottom: 48px;
+  }
+  .section-title span {
+    display: inline-block; font-size: 0.75rem; letter-spacing: 4px;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .section-title h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800;
+    color: var(--text-primary);
+  }
+  .section-title h2 em { font-style: normal; color: var(--accent); }
+
+  /* ===== Gear Cards ===== */
+  .gear-section { max-width: 1280px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  .gear-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 24px;
+  }
+
+  .gear-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: var(--transition);
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .gear-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0,229,255,0.4);
+    box-shadow: var(--glow);
+  }
+  .gear-card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .gear-card:hover::after { opacity: 1; }
+
+  .gear-card__header {
+    padding: 28px 28px 0;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .gear-card__icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; flex-shrink: 0;
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.2);
+  }
+  .gear-card__icon--2 { background: rgba(124,58,237,0.08); border-color: rgba(124,58,237,0.2); }
+  .gear-card__icon--3 { background: rgba(240,185,11,0.08); border-color: rgba(240,185,11,0.2); }
+  .gear-card__icon--4 { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); }
+
+  .gear-card__title { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
+  .gear-card__subtitle { font-size: 0.8rem; color: var(--text-secondary); }
+
+  .gear-card__specs {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 20px 28px;
+    font-size: 0.82rem;
+  }
+  .gear-card__spec { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+  .gear-card__spec-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .gear-card__desc {
+    padding: 0 28px 20px; font-size: 0.88rem; color: var(--text-secondary);
+    line-height: 1.65; flex: 1;
+  }
+
+  .gear-card__footer {
+    margin: 0 28px 28px; padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .gear-card__price {
+    font-size: 1.5rem; font-weight: 800; color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .gear-card__price small { font-size: 0.7rem; color: var(--text-secondary); font-weight: 400; }
+
+  .gear-card__btn {
+    padding: 10px 24px; border-radius: 8px; border: 1px solid var(--accent);
+    background: transparent; color: var(--accent);
+    font-size: 0.82rem; font-weight: 600; letter-spacing: 1px;
+    cursor: pointer; transition: var(--transition);
+    text-transform: uppercase;
+  }
+  .gear-card__btn:hover {
+    background: var(--accent); color: var(--bg-primary);
+    box-shadow: var(--glow-strong);
+  }
+
+  /* ===== Price Table ===== */
+  .price-section { max-width: 1280px; margin: 0 auto; padding: 0 24px 80px; }
+
+  .price-table {
+    width: 100%; border-collapse: collapse;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .price-table thead { background: rgba(0,229,255,0.06); }
+  .price-table th {
+    padding: 18px 24px; text-align: left;
+    font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); font-weight: 600;
+  }
+  .price-table td {
+    padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.9rem;
+  }
+  .price-table tbody tr { transition: background 0.2s; }
+  .price-table tbody tr:hover { background: rgba(0,229,255,0.03); }
+  .price-table .price-highlight {
+    font-weight: 700; color: var(--accent);
+    font-size: 1.05rem;
+  }
+  .price-tag {
+    display: inline-block; padding: 3px 10px; border-radius: 100px;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 1px;
+  }
+  .price-tag--hot { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .price-tag--new { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .price-tag--sale { background: rgba(240,185,11,0.15); color: var(--gold); }
+
+  /* ===== Contact / QR Section ===== */
+  .contact-section { max-width: 1280px; margin: 0 auto; padding: 0 24px 100px; }
+
+  .contact-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  }
+  @media (max-width: 768px) { .contact-grid { grid-template-columns: 1fr; } }
+
+  .contact-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+  }
+  .contact-card h3 {
+    font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;
+  }
+  .contact-card p { color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 28px; line-height: 1.6; }
+
+  .qr-wrapper {
+    display: inline-block;
+    padding: 20px; background: #fff; border-radius: 16px;
+    box-shadow: 0 0 30px rgba(0,229,255,0.15);
+  }
+  .qr-wrapper canvas, .qr-wrapper img { display: block; }
+
+  .contact-info { margin-top: 24px; }
+  .contact-info__item {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; margin-bottom: 10px;
+    font-size: 0.9rem; color: var(--text-secondary);
+  }
+  .contact-info__item svg { flex-shrink: 0; }
+  .contact-info__item strong { color: var(--text-primary); }
+
+  .social-links {
+    display: flex; justify-content: center; gap: 16px; margin-top: 28px;
+  }
+  .social-link {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary);
+    transition: var(--transition);
+    text-decoration: none;
+    font-size: 0.85rem;
+  }
+  .social-link:hover {
+    border-color: var(--accent); color: var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  /* ===== Footer ===== */
+  .footer {
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 32px 24px;
+    color: var(--text-secondary); font-size: 0.78rem;
+  }
+  .footer span { color: var(--accent); }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 640px) {
+    .gear-grid { grid-template-columns: 1fr; }
+    .hero__stats { gap: 24px; }
+    .price-table { font-size: 0.78rem; }
+    .price-table th, .price-table td { padding: 12px 14px; }
+    .contact-card { padding: 28px 20px; }
+    .nav__inner { padding: 12px 16px; }
+    .nav__tagline { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-orb glow-orb--1"></div>
+<div class="glow-orb glow-orb--2"></div>
+
+<div class="site-wrapper">
+
+  <!-- ===== Navigation ===== -->
+  <nav class="nav">
+    <div class="nav__inner">
+      <div class="nav__logo">TRAILBLAZER PRO</div>
+      <div class="nav__tagline">Equip · Explore · Endure</div>
+    </div>
+  </nav>
+
+  <!-- ===== Hero ===== -->
+  <header class="hero">
+    <div class="hero__badge">⚡ 2026 夏季装备指南</div>
+    <h1>探索荒野<br>从装备开始</h1>
+    <p>精选全球顶尖徒步装备，每一件都经过野外实测。从一日轻徒到多日重装穿越，用数据和真实体验为你筛选最值得入手的装备。</p>
+    <div class="hero__stats">
+      <div class="hero__stat">
+        <div class="hero__stat-value" id="countProducts">--</div>
+        <div class="hero__stat-label">精选装备</div>
+      </div>
+      <div class="hero__stat">
+        <div class="hero__stat-value">5000+</div>
+        <div class="hero__stat-label">实测公里数</div>
+      </div>
+      <div class="hero__stat">
+        <div class="hero__stat-value">12年</div>
+        <div class="hero__stat-label">户外经验</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Gear Cards ===== -->
+  <section class="gear-section">
+    <div class="section-title">
+      <span>— 核心装备 —</span>
+      <h2>徒步<em>六大件</em>推荐</h2>
+    </div>
+
+    <div class="gear-grid" id="gearGrid">
+      <!-- Cards populated by JS -->
+    </div>
+  </section>
+
+  <!-- ===== Price Table ===== -->
+  <section class="price-section">
+    <div class="section-title">
+      <span>— 价格对比 —</span>
+      <h2>装备<em>价格</em>全览</h2>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table class="price-table">
+        <thead>
+          <tr>
+            <th>装备名称</th>
+            <th>品牌 / 型号</th>
+            <th>推荐指数</th>
+            <th>参考价格</th>
+            <th>标签</th>
+          </tr>
+        </thead>
+        <tbody id="priceTableBody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== Contact / QR ===== -->
+  <section class="contact-section">
+    <div class="section-title">
+      <span>— 保持联系 —</span>
+      <h2>获取<em>更多</em>装备资讯</h2>
+    </div>
+
+    <div class="contact-grid">
+      <!-- QR Code Card -->
+      <div class="contact-card">
+        <h3>📱 扫码加入社群</h3>
+        <p>定期分享装备测评、徒步路线和限时团购信息</p>
+        <div class="qr-wrapper" id="qrContainer">
+          <canvas id="qrCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Contact Info Card -->
+      <div class="contact-card">
+        <h3>📬 联系我们</h3>
+        <p>装备咨询、商务合作、投稿交流 — 欢迎随时联系</p>
+
+        <div class="contact-info">
+          <div class="contact-info__item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <span><strong>trailblazer@hiking.pro</strong></span>
+          </div>
+          <div class="contact-info__item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span><strong>+86 400-888-TRAIL</strong></span>
+          </div>
+          <div class="contact-info__item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <span>微信公众号：<strong>TrailBlazer徒步指南</strong></span>
+          </div>
+        </div>
+
+        <div class="social-links">
+          <a href="#" class="social-link" title="微信">微</a>
+          <a href="#" class="social-link" title="微博">博</a>
+          <a href="#" class="social-link" title="抖音">抖</a>
+          <a href="#" class="social-link" title="小红书">红</a>
+          <a href="#" class="social-link" title="B站">B</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    © 2026 <span>TRAILBLAZER PRO</span> — 每一步都算数
+  </footer>
+
+</div>
+
+<!-- ===== QR Code Library ===== -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<script>
+  // ===== Gear Data =====
+  const gears = [
+    {
+      icon: '🥾', iconClass: '',
+      title: '专业徒步鞋', subtitle: 'Salomon X Ultra 4 GTX',
+      specs: ['防水 Gore-Tex', '重量 380g/只', 'Contagrip 大底', 'Quicklace 系统'],
+      desc: '全能型徒步鞋，Gore-Tex 防水透气膜应对多变天气，Advanced Chassis™ 中底为崎岖地形提供稳定支撑。适合中低海拔单日及多日徒步。',
+      price: 1298, currency: '¥', tag: 'hot', tagText: '热卖'
+    },
+    {
+      icon: '🎒', iconClass: 'gear-card__icon--2',
+      title: '轻量背包', subtitle: 'Osprey Talon 36',
+      specs: ['容量 36L', '重量 0.95kg', 'AirScape 背板', 'MultiSport 设计'],
+      desc: '36 升黄金容量，覆盖从一日轻徒到轻量过夜的所有场景。AirScape™ 背板透气出色，双侧弹力袋方便行进间取物。',
+      price: 1399, currency: '¥', tag: 'new', tagText: '新品'
+    },
+    {
+      icon: '🧥', iconClass: 'gear-card__icon--3',
+      title: '冲锋衣', subtitle: 'Arc\'teryx Beta LT',
+      specs: ['3L Gore-Tex', '重量 395g', 'RECCO 反射器', 'WaterTight 拉链'],
+      desc: '轻量全能硬壳，3 层 Gore-Tex 面料在防护性与透气性之间取得平衡。修身剪裁兼容中间层，适合四季使用。',
+      price: 4200, currency: '¥', tag: 'sale', tagText: '限时'
+    },
+    {
+      icon: '🔦', iconClass: 'gear-card__icon--4',
+      title: '头灯', subtitle: 'Petzl Actik Core',
+      specs: ['亮度 600lm', '重量 88g', 'USB 充电', 'IPX4 防水'],
+      desc: '可充电式高亮头灯，红光模式保护夜视力，Hybrid CONCEPT 兼容 AAA 电池。连续使用最长 130 小时。',
+      price: 399, currency: '¥', tag: 'hot', tagText: '热卖'
+    },
+    {
+      icon: '🪵', iconClass: '',
+      title: '登山杖', subtitle: 'Black Diamond Trail Ergo Cork',
+      specs: ['铝合金杖身', '重量 255g/根', '软木握把', 'FlickLock 锁扣'],
+      desc: '人体工学软木握把吸汗防滑，FlickLock 外锁系统调节快速可靠。双杖使用可降低 25% 膝关节冲击力。',
+      price: 898, currency: '¥', tag: '', tagText: ''
+    },
+    {
+      icon: '🛏️', iconClass: 'gear-card__icon--2',
+      title: '睡袋', subtitle: 'Sea to Summit Spark SP II',
+      specs: ['温标 -2°C', '重量 580g', '850FP 鹅绒', '压缩体积 4.5L'],
+      desc: '850 蓬松度拒水鹅绒，极限压缩仅 4.5 升。立衬结构杜绝冷点，适合三季露营及高原徒步。',
+      price: 2699, currency: '¥', tag: 'new', tagText: '新品'
+    }
+  ];
+
+  // ===== Render Gear Cards =====
+  const grid = document.getElementById('gearGrid');
+  gears.forEach((g, i) => {
+    const tagHTML = g.tag ? `<span class="price-tag price-tag--${g.tag}" style="margin-left:8px">${g.tagText}</span>` : '';
+    const card = document.createElement('article');
+    card.className = 'gear-card';
+    card.style.setProperty('--i', i);
+    card.innerHTML = `
+      <div class="gear-card__header">
+        <div class="gear-card__icon ${g.iconClass}">${g.icon}</div>
+        <div>
+          <div class="gear-card__title">${g.title}</div>
+          <div class="gear-card__subtitle">${g.subtitle}</div>
+        </div>
+      </div>
+      <div class="gear-card__specs">
+        ${g.specs.map(s => `<div class="gear-card__spec"><span class="gear-card__spec-dot"></span>${s}</div>`).join('')}
+      </div>
+      <div class="gear-card__desc">${g.desc}</div>
+      <div class="gear-card__footer">
+        <div class="gear-card__price">${g.currency}${g.price.toLocaleString()}<small> 起</small>${tagHTML}</div>
+        <button class="gear-card__btn">了解详情</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // ===== Animate Counter =====
+  const counterEl = document.getElementById('countProducts');
+  let count = 0;
+  const target = gears.length;
+  const counterInterval = setInterval(() => {
+    count++;
+    counterEl.textContent = count + '+';
+    if (count >= target) clearInterval(counterInterval);
+  }, 120);
+
+  // ===== Render Price Table =====
+  const tbody = document.getElementById('priceTableBody');
+  const stars = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
+  gears.forEach(g => {
+    const tagHTML = g.tag ? `<span class="price-tag price-tag--${g.tag}">${g.tagText}</span>` : '—';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${g.title}</strong></td>
+      <td>${g.subtitle}</td>
+      <td style="color:var(--gold);font-size:0.85rem;letter-spacing:2px">${stars(Math.floor(Math.random()*2)+4)}</td>
+      <td class="price-highlight">${g.currency}${g.price.toLocaleString()}</td>
+      <td>${tagHTML}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // ===== QR Code =====
+  const canvas = document.getElementById('qrCanvas');
+  QRCode.toCanvas(canvas, 'https://trailblazer.pro/community?ref=gear2026', {
+    width: 180,
+    margin: 0,
+    color: { dark: '#0a0e17', light: '#ffffff' }
+  }, (err) => {
+    if (err) console.warn('QR生成失败', err);
+  });
+</script>
+
+</body>
+</html>
