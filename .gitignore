@@ -67,3 +67,7 @@ vendor/
 *.tfstate.backup
 # --- Nested worktrees ---
 f-worktree/
+
+.claude/
+push_*.txt
+hiking-gear.html
