@@ -65,3 +65,5 @@ vendor/
 .terraform/
 *.tfstate
 *.tfstate.backup
+# --- Nested worktrees ---
+f-worktree/
